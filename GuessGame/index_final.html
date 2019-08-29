@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="de" dir="ltr">
+  <head>
+    <meta charset="utf-8">
+    <title>Guess Game</title>
+  </head>
+  <body>
+    <div id="container" class="container">
+        <div class="gameoverContainer">
+          <img class="GameOver" src="GameOver.gif" alt="GAME OVER - TRY AGAIN --- SPIEL VORBEI - ERNEUT VERUCHEN">
+          <button onclick="reset()" type="button" name="resetButton">Nochmal</button>
+        </div>
+        <div class="completedContainer">
+          <h1>Sie haben gewonnen!</h1>
+          <button onclick="reset()" type="button" name="resetButton">Nochmal</button>
+        </div>
+        <div class="guessContainer">
+          <h1>Guess Game</h1>
+          <p class="text">Gib eine Zahl ein und tippe auf Prüfen!</p>
+          <div class="imputArea">
+            <input type="number" id="guessField" class="guessField">
+            <button onclick="check()" type="button" value="Prüfen" class="guessSubmit">Prüfen</button>
+          </div>
+          <p class="guesshistory"></p>
+          <div class="guessMeter">
+            <span class="guessMeterBar" ></span>
+            <p class="guessMeterText">0/10</p>
+          </div>
+        </div>
+    </div>
+  </body>
+</html>
+
+<script type="text/javascript">
+
+  //Variablen - Elemente
+  const GUESSES = document.querySelector('.guesses');
+  const TEXT = document.querySelector('.text');
+  const GUESS_HISTORY_TEXT = document.querySelector('.guesshistory');
+  const GUESS_CONTAINER = document.querySelector('.guessContainer');
+  const GAMEOVER_CONTAINER = document.querySelector('.gameoverContainer');
+  const COMPLETED_CONTAINER = document.querySelector('.completedContainer');
+  const GUESS_SUBMIT = document.querySelector('.guessSubmit');
+  const GUESS_FIELD = document.querySelector('.guessField');
+  const GUESS_METER_BAR = document.querySelector('.guessMeterBar');
+  const GUESS_METER_TEXT = document.querySelector('.guessMeterText');
+
+  //Variablen - Daten
+  const TEXT_LOWER = ["Du bist zu hoch.", "Du bist zu hoch.", "Du bist zu hoch."]
+  const TEXT_HIGHER = ["Du bist zu tief. Schätze höher!", "Du bist zu tief. Schätze höher!", "Du bist zu tief. Schätze höher!"]
+  const MAX_TRIES = 10;
+
+  let randomNumber = Math.floor(Math.random() * 100) + 1;
+  let round = 0;
+  let guessHistorynNmbers=[0,0,0,0,0,0,0,0,0,0];
+  
+
+  function check() {
+    // Variable guessedNumber wird zum Wert der im guessField eingegeben wurde
+    let guessedNumber = Number(guessField.value);
+
+    // Prüfen ob die Eingabe grösser als 0 ist
+    if(guessedNumber > 0){
+
+      //Eingabe war korrekt runde Aktualisieren
+      updateRound();
+
+      //guessedNumber dem gessHistoryNumber array hinzufügen -- Achtung! Wo startet ein Array?
+      guessHistorynNmbers[round-1] = guessedNumber;
+
+      //prüfen ob MAX_TRIES erreicht wurde
+      if (round < MAX_TRIES){
+        //prüfen ob guessedNumber grösser / kleiner / gleich randomNumber ist
+        if (guessedNumber==randomNumber){
+          showCompleted();
+        }
+        else if (guessedNumber<randomNumber){
+          TEXT.textContent = TEXT_HIGHER[Math.floor(Math.random() * TEXT_HIGHER.length)]
+        }
+        else if (guessedNumber>randomNumber){
+          TEXT.textContent = TEXT_LOWER[Math.floor(Math.random() * TEXT_LOWER.length)]
+        }
+        updateGuessHistory();
+      } else {
+        showGameover();
+      }
+    }else {
+      TEXT.textContent = "Bitte geben Sie zuerst eine Zahl ein.";
+    }
+  }
+
+  // Setzt das ganze Spiel zurück
+  function reset(){
+    randomNumber = Math.floor(Math.random() * 100) + 1;
+    round = 0;
+    guessHistorynNmbers=[0,0,0,0,0,0,0,0,0,0];
+    GUESS_HISTORY_TEXT.textContent  = "";
+    showGame();
+  }
+
+  function updateGuessHistory(){
+    var results ="";
+    guessHistorynNmbers.forEach(function(element) {
+      if(element!=0){
+        if (results==""){
+          results ="Zuvor getippt: "+element;
+        }else {
+          results = results + ", " + element;
+        }
+      }
+    });
+    GUESS_HISTORY_TEXT.textContent  = results;
+  }
+
+  //GUESS_CONTAINER und COMPLETED_CONTAINER ausblenden und GAMEOVER_CONTAINER einblenden
+  function showGameover(){
+    GUESS_CONTAINER.style.display="none";
+    COMPLETED_CONTAINER.style.display="none";
+    GAMEOVER_CONTAINER.style.display="block";
+  }
+  //GUESS_CONTAINER und GAMEOVER_CONTAINER ausblenden und COMPLETED_CONTAINER einblenden
+  function showCompleted(){
+    GUESS_CONTAINER.style.display="none";
+    GAMEOVER_CONTAINER.style.display="none";
+    COMPLETED_CONTAINER.style.display="block";
+  }
+  //COMPLETED_CONTAINER und GAMEOVER_CONTAINER ausblenden und GUESS_CONTAINER einblenden
+  function showGame(){
+    GUESS_CONTAINER.style.display="block";
+    COMPLETED_CONTAINER.style.display="none";
+    GAMEOVER_CONTAINER.style.display="none";
+  }
+  //Runde aktualisieren 
+  function updateRound(){
+    //runde inkrementieren (um eins erhöhen)
+    round++;
+    //GUESS_METER_BAR.style.width auf die % der benötigten Versuche setzen
+    GUESS_METER_BAR.style.width = round/MAX_TRIES*100+"%"
+    //GUESS_METER_TEXT.innerHTML auf die entprechende runde setzen
+    GUESS_METER_TEXT.innerHTML = round + "/" + MAX_TRIES;
+  }
+
+</script>
+<style>
+    .guessField{
+      font-size: 4rem;
+      width: 40%;
+      border: none;
+      text-align: center;
+    }
+    .guessSubmit{
+      width:40%;
+    }
+    input::-webkit-outer-spin-button,
+    input::-webkit-inner-spin-button {
+        -webkit-appearance: none;
+    }
+    button{
+      font-size: 4rem;
+      background-color: #4CAF50; /* Green */  
+      color: white;
+      border: none;
+      text-align: center;
+      text-decoration: none;
+    }
+    button:hover{
+      background-color: rgb(53, 192, 58); /* Green */
+    }
+    .inputArea{
+      width:100%;
+    }
+    .gameoverContainer{
+      display: none;
+      align-content: center;
+      text-align: center;
+    }
+    .completedContainer{
+      display: none;
+      align-content: center;
+      text-align: center;
+    }
+    .GameOver{
+      width: 100%;
+      height: 100%;
+    
+    }
+      h1{
+        font-size:5rem;
+      }
+      p{
+        font-size: 30pt;
+        color: white;
+      }
+      body{
+        padding: 0;
+        background-color: #efefef;
+        font-family: sans-serif;
+        color: 	white;
+      }
+      .container{
+        padding:  2rem;
+        margin: auto;
+        text-align: center;
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%,-50%);
+        max-width: 1100px;
+        background-color: coral;
+        border-radius: 12px;
+      }
+      
+    .guessMeter { 
+    position: relative;
+    background: #555;
+    border-radius: 8px;
+    padding: 10px;
+	z-index:0;
+    }
+    .guessMeterBar {
+      display: block;
+      height: 100%;
+      border-radius: 8px;
+      background-color: rgb(43,194,83);
+      position: relative;
+      overflow: hidden;
+      position: absolute;
+      top: 0;
+      left: 0;
+	  z-index: -999;
+  }
+  .guessMeterText{
+    margin: 0;
+    font-size: 2rem;
+    z-index: 10;
+  }
+</style>
